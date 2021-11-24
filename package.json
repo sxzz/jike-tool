@@ -1,0 +1,35 @@
+{
+  "name": "jike-tool",
+  "version": "0.0.1",
+  "description": "jike toolbox",
+  "keywords": [
+    "jike"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sxzz/jike-tool.git"
+  },
+  "author": "Kevin <sxzz@sxzz.moe>",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node --no-warnings --experimental-json-modules dist/src/main.js"
+  },
+  "bugs": {
+    "url": "https://github.com/sxzz/jike-tool/issues"
+  },
+  "homepage": "https://github.com/sxzz/jike-tool#readme",
+  "devDependencies": {
+    "@sxzz/eslint-config-prettier": "^1.6.1",
+    "@sxzz/eslint-config-ts": "^1.6.1",
+    "commander": "^8.3.0",
+    "eslint": "^8.3.0",
+    "eslint-define-config": "^1.1.4",
+    "esno": "^0.12.1",
+    "got": "^11.8.3",
+    "p-limit": "^4.0.0",
+    "typescript": "^4.5.2"
+  }
+}
