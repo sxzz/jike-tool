@@ -1,9 +1,7 @@
-/* eslint-disable no-console */
-
 import got, { HTTPError } from 'got'
 import pQueue from 'p-queue'
 import { program } from 'commander'
-import pkg from '../package.json'
+import { version } from './package.json'
 import type {
   LikedUsersRequest,
   LikedUsersResponse,
@@ -11,10 +9,10 @@ import type {
   PostRequest,
   PostResponse,
   User,
-} from './types'
+} from '../like-ranking/types'
 
 program
-  .version(pkg.version)
+  .version(version)
   .requiredOption('-u, --username <username>', 'username')
   .requiredOption('-t, --token <token>', 'access token')
   .parse(process.argv)
