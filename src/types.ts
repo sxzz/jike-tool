@@ -211,5 +211,5 @@ export interface LikedUsersRequest {
 
 export interface LikedUsersResponse {
   data: User[]
-  loadMoreKey: string
+  loadMoreKey?: string
 }

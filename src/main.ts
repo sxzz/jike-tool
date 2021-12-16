@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
-import got from 'got'
-import pLimit from 'p-limit'
+import got, { HTTPError } from 'got'
+import pQueue from 'p-queue'
 import { program } from 'commander'
 import pkg from '../package.json'
 import type {
@@ -20,7 +20,11 @@ program
   .parse(process.argv)
 const options = program.opts<{ token: string; username: string }>()
 
-const limit = pLimit(5)
+const queue = new pQueue({
+  concurrency: 1,
+  interval: 1000,
+  intervalCap: 1,
+})
 const request = got.extend({
   prefixUrl: 'https://api.ruguoapp.com/1.0/',
   headers: {
@@ -59,35 +63,36 @@ const getLikedUsers = async (postId: string) => {
       limit: 10000,
     }
     if (loadMoreKey) data.loadMoreKey = loadMoreKey
-    const { body: resp } = await request.post<LikedUsersResponse>(
-      'originalPosts/listLikedUsers',
-      { json: data }
-    )
+    const { body: resp } = await request
+      .post<LikedUsersResponse>('originalPosts/listLikedUsers', { json: data })
+      .catch((err: Error) => {
+        if (err instanceof HTTPError) console.log(err.response.body)
+        return { body: { data: [], loadMoreKey: undefined } }
+      })
     loadMoreKey = resp.loadMoreKey
     users.push(...resp.data)
   } while (loadMoreKey)
+  console.log(users)
   return users
 }
 
 ;(async () => {
   const likes: Record<string, number> = {}
 
-  const posts = await getPostsByUid(options.username)
+  const posts = await queue.add(() => getPostsByUid(options.username))
   console.log(`获取到 ${posts.length} 个动态`)
 
-  await Promise.all(
-    posts.map((post) =>
-      limit(async () => {
-        const users = await getLikedUsers(post.id)
-        for (const user of users) {
-          if (likes[user.screenName] === undefined) {
-            likes[user.screenName] = 1
-          } else {
-            likes[user.screenName]++
-          }
+  await queue.addAll(
+    posts.map((post) => async () => {
+      const users = await getLikedUsers(post.id)
+      for (const user of users) {
+        if (likes[user.screenName] === undefined) {
+          likes[user.screenName] = 1
+        } else {
+          likes[user.screenName]++
         }
-      })
-    )
+      }
+    })
   )
 
   console.table(
