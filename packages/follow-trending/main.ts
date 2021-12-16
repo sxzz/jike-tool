@@ -21,7 +21,7 @@ const getNotifications = async () => {
     const option: PaginationOption | undefined = lastNotificationId
       ? { loadMoreKey: { lastNotificationId } }
       : undefined
-    const result = await api.notifications.list(option)
+    const result = (await api.notifications.list(option)).data
     lastNotificationId = result.loadMoreKey?.lastNotificationId
     data.push(...result.data)
     console.log('获取下一页...')
@@ -33,10 +33,12 @@ const getAllFollowers = async (username: string) => {
   let createdAt = ''
   const data = []
   do {
-    const result = await api.userRelation.getFollowerList(username, {
-      limit: 20,
-      loadMoreKey: createdAt ? { createdAt } : undefined,
-    })
+    const result = (
+      await api.userRelation.getFollowerList(username, {
+        limit: 20,
+        loadMoreKey: createdAt ? { createdAt } : undefined,
+      })
+    ).data
     createdAt = result.loadMoreKey?.createdAt
     data.push(...result.data)
   } while (createdAt)
@@ -47,7 +49,11 @@ const getAllFollowers = async (username: string) => {
   setAccessToken(options.token)
 
   const profile = await api.users.profile()
-  const follower = await getAllFollowers(profile.user.username)
+  if (profile.status !== 200) {
+    console.error((profile.data as any).error)
+    return
+  }
+  const follower = await getAllFollowers(profile.data.user.username)
 
   const notifications = (await getNotifications())
     .filter((item) => item.actionItem.type === 'FOLLOW')

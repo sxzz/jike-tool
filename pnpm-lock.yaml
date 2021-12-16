@@ -22,7 +22,7 @@ importers:
       commander: ^8.3.0
       dayjs: ^1.10.7
       esmo: ^0.12.1
-      jike-sdk: ^0.5.2
+      jike-sdk: ^0.6.2
       open: ^8.4.0
       serve-handler: ^6.1.3
       tsup: ^5.11.6
@@ -30,7 +30,7 @@ importers:
     dependencies:
       commander: 8.3.0
       dayjs: 1.10.7
-      jike-sdk: 0.5.2
+      jike-sdk: 0.6.2
       open: 8.4.0
       serve-handler: 6.1.3
     devDependencies:
@@ -2181,8 +2181,8 @@ packages:
     resolution: {integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=}
     dev: true
 
-  /jike-sdk/0.5.2:
-    resolution: {integrity: sha512-bWoZnH+sPepFsdk51+hCYQiZyUK14Plzks8KLZRG5jOYC4bgJBu7RgyQLCQV57UP00CALdAjSzDjsVrD9Sp9mA==}
+  /jike-sdk/0.6.2:
+    resolution: {integrity: sha512-lHcyUOVfDTlnySHSFPPnj87w9AHpgE9LVF8XcAr7JRM1JzziNSCvlc4lwJPkR885Xmd2f0G3EqicALJkrSK7VQ==}
     engines: {node: '>=14'}
     dependencies:
       ky: 0.28.7
