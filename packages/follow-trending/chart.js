@@ -1,26 +1,26 @@
 import data from './data.json' assert { type: 'json' }
-
+const dayjs = window.dayjs
 const { Line } = window.G2Plot
+
 const line = new Line('container', {
   data,
   xField: 'time',
   yField: 'count',
   xAxis: {
     type: 'time',
-    tickCount: 5,
+    nice: true,
+    tickInterval: 60 * 86400 * 100,
     mask: 'YYYY-MM-DD HH:mm:ss',
+    label: {
+      formatter: (val) => dayjs(val).format('YYYY-MM-DD'),
+    },
   },
   meta: {
     count: {
       tickInterval: 20,
     },
   },
-  smooth: true,
-
   slider: {},
-  tooltip: {
-    showCrosshairs: true,
-    shared: true,
-  },
+  tooltip: {},
 })
 line.render()
