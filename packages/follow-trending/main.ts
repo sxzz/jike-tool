@@ -66,7 +66,7 @@ const getAllFollowers = async (username: string) => {
   for (const n of notifications) {
     const user = n.actionItem.users[0]
     const isFollow = follower.some((follower) => follower.id === user.id)
-    if (!isFollow) continue
+    // if (!isFollow) continue
     count += n.actionItem.usersCount
     const time = dayjs(n.createdAt).format('YYYY-MM-DD HH:mm:ss')
     results.push({

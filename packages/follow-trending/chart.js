@@ -17,10 +17,12 @@ const line = new Line('container', {
   },
   meta: {
     count: {
+      alias: '关注数',
       tickInterval: 20,
     },
   },
   slider: {},
   tooltip: {},
+  point: {},
 })
 line.render()
