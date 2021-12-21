@@ -1,10 +1,11 @@
 import path from 'path'
 import { writeFile } from 'fs/promises'
 import { fileURLToPath } from 'url'
-import { setAccessToken, api } from 'jike-sdk/node'
+import { JikeClient } from 'jike-sdk/node'
 import { program } from 'commander'
 import { countBy } from 'lodash-es'
 import dayjs from 'dayjs'
+import sharp from 'sharp'
 import { version } from './package.json'
 
 program
@@ -14,7 +15,11 @@ program
   .parse(process.argv)
 const options = program.opts<{ token: string; username: string }>()
 
+const YEAR = 2021
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const client = new JikeClient({
+  accessToken: options.token,
+})
 
 ;(async () => {
   const { which, exec, mv } = await import('shelljs').then((m) => m.default)
@@ -24,31 +29,36 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
     )
     process.exit(1)
   }
+  const user = client.getUser(options.username)
 
-  setAccessToken(options.token)
+  const profile = await user.queryProfile()
+  const screenName = profile.user.screenName
 
-  const profile = await api.users.profile(options.username)
-  if (profile.status !== 200) {
-    console.error((profile.data as any).error)
-    return
-  }
+  console.info(`获取 @${screenName} 的动态中...`)
 
-  console.info(`Hello, @${profile.data.user.screenName}`)
-  console.info(`获取数据中...`)
-
-  const posts = await api.personalUpdate.single(options.username, {
-    limit: 50000,
-  })
-  const counts = countBy(posts.data.data, (p) =>
-    dayjs(p.createdAt).format('YYYY-MM-DD')
+  const posts = await client.getUser(options.username).queryPersonalUpdate()
+  const counts = countBy(posts, (p) =>
+    dayjs(p.getDetail().createdAt).format('YYYY-MM-DD')
   )
   await writeFile('./data.json', JSON.stringify(counts, undefined, 2))
-  console.info(`生成中...`)
+
+  console.info(`生成图片中...`)
   exec(
-    `github_poster json --json_file ./data.json --year 2021 --with-animation --me ${profile.data.user.screenName}`
+    `github_poster json --json_file ./data.json --year ${YEAR} --me ${screenName} --track-color "#9ee9ac" --special-color1 "#fff" --special-color2 "#ffe411"`
   )
-  const filename = `OUT_FOLDER/${profile.data.user.screenName}.svg`
-  const output = path.resolve(__dirname, filename)
-  mv(path.resolve(__dirname, 'OUT_FOLDER/json.svg'), output)
-  console.info(`生成成功! 请查看 ${output}`)
+
+  const pathOut = path.resolve(__dirname, 'OUT_FOLDER')
+  const svgFile = path.resolve(pathOut, `${screenName}.svg`)
+  const pngFile = path.resolve(pathOut, `${screenName}.png`)
+  mv(path.resolve(pathOut, 'json.svg'), svgFile)
+
+  await sharp(svgFile, { density: 200 })
+    .resize(1920, 1080, {
+      fit: 'contain',
+      background: '#222',
+    })
+    .png()
+    .toFile(pngFile)
+
+  console.info(`生成成功! 请查看 ${pngFile}`)
 })()

@@ -1,12 +1,11 @@
 import { writeFile } from 'fs/promises'
 import http from 'http'
-import { setAccessToken, api } from 'jike-sdk/node'
+import { JikeClient } from 'jike-sdk/node'
 import dayjs from 'dayjs'
 import { program } from 'commander'
 import handler from 'serve-handler'
 import open from 'open'
 import { version } from './package.json'
-import type { PaginationOption } from 'jike-sdk/node'
 
 program
   .version(version)
@@ -14,27 +13,14 @@ program
   .parse(process.argv)
 const options = program.opts<{ token: string }>()
 
-const getNotifications = async () => {
-  let lastNotificationId = ''
-  const data = []
-  do {
-    const option: PaginationOption | undefined = lastNotificationId
-      ? { loadMoreKey: { lastNotificationId } }
-      : undefined
-    const result = (await api.notifications.list(option)).data
-    lastNotificationId = result.loadMoreKey?.lastNotificationId
-    data.push(...result.data)
-    console.log('获取下一页...')
-  } while (lastNotificationId)
-  return data
-}
+const client = new JikeClient({ accessToken: options.token })
 
 const getAllFollowers = async (username: string) => {
   let createdAt = ''
   const data = []
   do {
     const result = (
-      await api.userRelation.getFollowerList(username, {
+      await client.apiClient.userRelation.getFollowerList(username, {
         limit: 20,
         loadMoreKey: createdAt ? { createdAt } : undefined,
       })
@@ -46,21 +32,24 @@ const getAllFollowers = async (username: string) => {
 }
 
 ;(async () => {
-  setAccessToken(options.token)
-
-  const profile = await api.users.profile()
+  const profile = await client.apiClient.users.profile()
   if (profile.status !== 200) {
     console.error((profile.data as any).error)
     return
   }
   const follower = await getAllFollowers(profile.data.user.username)
 
-  const notifications = (await getNotifications())
+  const notifications = (
+    await client.queryNotifications({
+      onNextPage: (page) => console.log(`获取第 ${page} 页通知中...`),
+    })
+  )
     .filter((item) => item.actionItem.type === 'FOLLOW')
     .sort(
       (a, b) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     )
+
   const results = []
   let count = 0
   for (const n of notifications) {
