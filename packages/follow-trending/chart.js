@@ -3,7 +3,7 @@ const dayjs = window.dayjs
 const { Line } = window.G2Plot
 
 const line = new Line('container', {
-  data,
+  data: data.filter((item) => item.isFollow),
   xField: 'time',
   yField: 'count',
   xAxis: {
@@ -23,6 +23,12 @@ const line = new Line('container', {
   },
   slider: {},
   tooltip: {},
-  point: {},
+  // point: {},
+  animation: {
+    appear: {
+      animation: 'wave-in',
+      duration: 2000,
+    },
+  },
 })
 line.render()
