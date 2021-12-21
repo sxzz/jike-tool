@@ -1,0 +1,14 @@
+{
+  "name": "utils",
+  "version": "0.0.1",
+  "description": "工具",
+  "keywords": [
+    "jike",
+    "utils"
+  ],
+  "license": "GPL-3.0",
+  "author": "三咲智子 <sxzz@sxzz.moe>",
+  "type": "module",
+  "module": "dist/main.js",
+  "scripts": {}
+}
