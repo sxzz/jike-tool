@@ -14,48 +14,33 @@ program
 const options = program.opts<{ token: string }>()
 
 const client = new JikeClient({ accessToken: options.token })
-
-const getAllFollowers = async (username: string) => {
-  let createdAt = ''
-  const data = []
-  do {
-    const result = (
-      await client.apiClient.userRelation.getFollowerList(username, {
-        limit: 20,
-        loadMoreKey: createdAt ? { createdAt } : undefined,
-      })
-    ).data
-    createdAt = result.loadMoreKey?.createdAt
-    data.push(...result.data)
-  } while (createdAt)
-  return data
-}
-
+const user = client.getSelf()
 ;(async () => {
-  const profile = await client.apiClient.users.profile()
-  if (profile.status !== 200) {
-    console.error((profile.data as any).error)
-    return
-  }
-  const follower = await getAllFollowers(profile.data.user.username)
+  const follower = await user.queryFollowers({
+    onNextPage: (page) => console.info(`获取第 ${page} 页被关注中...`),
+  })
 
-  const notifications = (
-    await client.queryNotifications({
-      onNextPage: (page) => console.log(`获取第 ${page} 页通知中...`),
-    })
+  let notifications = await client.queryNotifications({
+    onNextPage: (page) => console.log(`获取第 ${page} 页通知中...`),
+  })
+
+  await writeFile(
+    'notifications.json',
+    JSON.stringify(notifications, undefined, 2)
   )
+
+  notifications = notifications
     .filter((item) => item.actionItem.type === 'FOLLOW')
-    .sort(
-      (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    )
+    .reverse()
 
   const results = []
   let count = 0
   for (const n of notifications) {
     const user = n.actionItem.users[0]
+
     const isFollow = follower.some((follower) => follower.id === user.id)
     if (isFollow) count += n.actionItem.usersCount
+
     const time = dayjs(n.createdAt).format('YYYY-MM-DD HH:mm:ss')
     results.push({
       time,
@@ -64,7 +49,7 @@ const getAllFollowers = async (username: string) => {
       count,
     })
   }
-  writeFile('data.json', JSON.stringify(results))
+  writeFile('data.json', JSON.stringify(results, undefined, 2))
   console.info('写入成功')
 
   const server = http.createServer((request, response) => {

@@ -22,7 +22,7 @@ importers:
       commander: ^8.3.0
       dayjs: ^1.10.7
       esmo: ^0.13.0
-      jike-sdk: ^0.7.0-beta.6
+      jike-sdk: ^0.7.0-beta.10
       open: ^8.4.0
       serve-handler: ^6.1.3
       tsup: ^5.11.7
@@ -30,11 +30,26 @@ importers:
     dependencies:
       commander: 8.3.0
       dayjs: 1.10.7
-      jike-sdk: 0.7.0-beta.6
+      jike-sdk: 0.7.0-beta.10
       open: 8.4.0
       serve-handler: 6.1.3
     devDependencies:
       '@types/serve-handler': 6.1.1
+      esmo: 0.13.0_typescript@4.5.4
+      tsup: 5.11.7_typescript@4.5.4
+      typescript: 4.5.4
+
+  packages/follow-trending-bot:
+    specifiers:
+      dayjs: ^1.10.7
+      esmo: ^0.13.0
+      jike-sdk: ^0.7.0-beta.10
+      tsup: ^5.11.7
+      typescript: ^4.5.4
+    dependencies:
+      dayjs: 1.10.7
+      jike-sdk: 0.7.0-beta.10
+    devDependencies:
       esmo: 0.13.0_typescript@4.5.4
       tsup: 5.11.7_typescript@4.5.4
       typescript: 4.5.4
@@ -2655,6 +2670,15 @@ packages:
   /isexe/2.0.0:
     resolution: {integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=}
     dev: true
+
+  /jike-sdk/0.7.0-beta.10:
+    resolution: {integrity: sha512-OLybac8UuBi5PP4/2QkiaVZt+12fv73i6OkMt1BqEJ2YZfOB6gYasZTY9QmOjwnMeP8nz+6bnGuezuVaSkoC4Q==}
+    engines: {node: '>=14'}
+    dependencies:
+      form-data: 4.0.0
+      ky: 0.28.7
+      node-fetch: 3.1.0
+    dev: false
 
   /jike-sdk/0.7.0-beta.6:
     resolution: {integrity: sha512-VODwvdoC/Q37IvilmEz4Bg7RxI/9Z7tMKoKMZkXxWDJwSHW6Hg1ppz+rGGEjxA79Ft7+vPxE/AImPg7OkFVbWQ==}

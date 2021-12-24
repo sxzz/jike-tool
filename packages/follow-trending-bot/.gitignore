@@ -1,3 +1,2 @@
 *.json
 !tsconfig.json
-!package.json
